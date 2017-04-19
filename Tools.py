@@ -315,7 +315,7 @@ def precision_recall_11points(eval_results):
     ap = np.mean(precisions)        
 
 
-    return recalls, precisions, ap
+    return precisions, recalls, ap
     
     
 def _linear_interpolate(x, X, Y):
@@ -337,41 +337,14 @@ def recall_FPPI(eval_results):
     recalls = np.array(recalls)
     FPPIs = np.array(FPPIs)
     
-    results = {}
+    recalls_output = []
+    fppis_output = []
+
     for FPPI in [0.001, 0.01, 0.1, 1.0, 10.0]:
-        results[FPPI] = _linear_interpolate(FPPI, FPPIs, recalls)
-    
-    return results
+        recalls_output.append(_linear_interpolate(FPPI, FPPIs, recalls))
+        fppis_output.append(FPPI)
+    return recalls_output, fppis_output
     
 if __name__ == "__main__":
     image_id = 770
     visualize_annotations(image_id, vehicle_marker='None', vehicle_shape='None')
-    
-#    prediction = load_prediction_txt('/media/guang/NTFS_Partition_small/VEDAI/DevKit/Resultats/car_04.txt')
-#    visualize_prediction(image_id, prediction, thres=0.0, vehicle_marker='D', collision_detection=True)
-    table = DataFrame(columns=['AP', 'recall at 0.001 FPPI', 'recall at 0.01 FPPI', 'recall at 0.1 FPPI', 'recall at 1 FPPI', 'recall at 10 FPPI'])
-    for fold in range(10):
-        prediction = load_prediction_txt('/media/guang/NTFS_Partition_small/VEDAI/DevKit/Resultats/car_{:02d}.txt'.format(fold+1)) 
-        prediction['x'] -= 1
-        prediction['y'] -= 1
-        eval_results= evaluate(prediction, 'car', fold=fold)
-        recalls, precisions, ap = precision_recall_11points(eval_results)
-        table.loc[fold, 'AP'] = ap
-        
-        plt.figure()
-        plt.plot(recalls, precisions, marker='+')
-        plt.ylabel('Precision')
-        plt.xlabel('Recall')    
-        plt.title('fold:{}  AP: {}'.format(fold, ap))    
-        print 'AP:', ap
-        #eval_results.plot(x='recall', y='precision')
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])    
-    
-        #eval_results.plot(x='FPPI', y='recall')
-        rvf = recall_FPPI(eval_results)
-        table.loc[fold, 'recall at 0.001 FPPI'] = rvf[0.001]
-        table.loc[fold, 'recall at 0.01 FPPI'] = rvf[0.01]
-        table.loc[fold, 'recall at 0.1 FPPI'] = rvf[0.1]
-        table.loc[fold, 'recall at 1 FPPI'] = rvf[1.0]
-        table.loc[fold, 'recall at 10 FPPI'] = rvf[10.0]
