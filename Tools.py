@@ -62,7 +62,9 @@ for i, row in _annotations.iterrows():
     width = np.mean(l[0:2])    
     _annotations.loc[i, 'width'] = width
     _annotations.loc[i, 'length'] = length
-    
+
+del i, l, n, row, sides, length, width
+
     
 _legal_image_ids = set(_folds['train'][0]) | set(_folds['test'][0])
 
