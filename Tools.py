@@ -185,7 +185,7 @@ def visualize_annotations(image_id, image_type='co', vehicle_marker='None', vehi
     plt.ylim([IMG_SIZE, 0])    
         
     
-def visualize_prediction(image_id, prediction, thres = -10.0, image_type='co', vehicle_marker='None', collision_detection=False, verbose=False):    
+def visualize_prediction(image_id, prediction, thres = -10.0, image_type='co', vehicle_marker='None', radius=1.0, collision_detection=False, verbose=False):    
     image = Image.open(get_image_path(image_id, image_type))
     plt.imshow(image)
     ax = plt.gca()    
@@ -207,7 +207,7 @@ def visualize_prediction(image_id, prediction, thres = -10.0, image_type='co', v
             marker_fc = '#FF4444'
             marker_ec = '#880000'       
             for j, gt_instance in gt_this_image.iterrows():
-                if collision_check(row, gt_instance):
+                if collision_check(row, gt_instance, radius):
                     marker_fc = '#44FF44'
                     marker_ec = '#008800'
 
@@ -256,7 +256,7 @@ def collision_check(point, ellipse, radius=1.0):
     return np.square(x) + np.square(y) <= radius
 
 
-def evaluate(prediction, vehicle_class, fold):
+def evaluate(prediction, vehicle_class, fold, radius=1.0):
     cids = _vehicle_classes_ids[vehicle_class]
     if type(cids) == int:
         gt_this_class = _annotations.loc[(_annotations['class']==cids) & (_annotations['test_fold']==fold)]
@@ -280,7 +280,7 @@ def evaluate(prediction, vehicle_class, fold):
 
         hit = False
         for j, gt_instance in gt_this_image.iterrows():
-            if collision_check(pred_instance, gt_instance):
+            if collision_check(pred_instance, gt_instance, radius):
                 hit = True
                 if not gt_instance['recalled']:
                     gt_this_class.loc[j, 'recalled'] = True
