@@ -95,6 +95,9 @@ _vehicle_classes_ids = {
     'other':10,
     'boat':23,
     'plane':31,
+    
+    
+    'all':set([1, 4, 9, 11, 2, 5, 10, 23, 31]),
 }
 
 def get_image_path(image_id, image_type='co'):
@@ -242,7 +245,7 @@ def load_prediction_txt(file_path):
     return prediction
     
     
-def collision_check(point, ellipse):
+def collision_check(point, ellipse, radius=1.0):
     X = point['x'] - ellipse['x']
     Y = point['y'] - ellipse['y']
     alpha = - ellipse['orient']
@@ -250,7 +253,7 @@ def collision_check(point, ellipse):
     y = np.sin(alpha) * X + np.cos(alpha) * Y
     x /= ellipse['length'] * 0.5
     y /= ellipse['width'] * 0.5
-    return np.square(x) + np.square(y) <= 1.0
+    return np.square(x) + np.square(y) <= radius
 
 
 def evaluate(prediction, vehicle_class, fold):
